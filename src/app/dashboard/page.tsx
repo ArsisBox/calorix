@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AddEntryForm } from "@/components/AddEntryForm";
 import { EntryList } from "@/components/EntryList";
 import { LogoutButton } from "@/components/LogoutButton";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -44,28 +45,30 @@ export default async function DashboardPage() {
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">Hola{profile?.full_name ? `, ${profile.full_name}` : ""}</h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             {new Date().toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })}
           </p>
         </div>
         <LogoutButton />
       </header>
 
-      <div className="rounded-xl border border-gray-200 p-4">
-        <div className="flex items-baseline justify-between">
-          <span className="text-3xl font-bold">{totalCalories}</span>
-          <span className="text-sm text-gray-500">de {goal} kcal</span>
-        </div>
-        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-100">
-          <div
-            className="h-full rounded-full bg-green-600 transition-all"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <p className="mt-2 text-sm text-gray-500">
-          {remaining >= 0 ? `${remaining} kcal restantes` : `${Math.abs(remaining)} kcal por encima del objetivo`}
-        </p>
-      </div>
+      <Card>
+        <CardContent>
+          <div className="flex items-baseline justify-between">
+            <span className="text-3xl font-bold">{totalCalories}</span>
+            <span className="text-sm text-muted-foreground">de {goal} kcal</span>
+          </div>
+          <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-primary transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {remaining >= 0 ? `${remaining} kcal restantes` : `${Math.abs(remaining)} kcal por encima del objetivo`}
+          </p>
+        </CardContent>
+      </Card>
 
       <AddEntryForm userId={user.id} />
 

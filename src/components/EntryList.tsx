@@ -28,7 +28,7 @@ export function EntryList({ entries }: { entries: DiaryEntry[] }) {
 
   if (entries.length === 0) {
     return (
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-muted-foreground">
         Todavía no registraste nada hoy.
       </p>
     );
@@ -50,10 +50,10 @@ export function EntryList({ entries }: { entries: DiaryEntry[] }) {
 
         return (
           <div key={meal}>
-            <h3 className="mb-2 text-sm font-semibold text-gray-500">
+            <h3 className="mb-2 text-sm font-semibold text-muted-foreground">
               {MEAL_LABELS[meal]}
             </h3>
-            <ul className="divide-y divide-gray-100 rounded-lg border border-gray-100">
+            <ul className="divide-y divide-border rounded-lg border">
               {items.map((entry) => (
                 <li
                   key={entry.id}
@@ -61,13 +61,13 @@ export function EntryList({ entries }: { entries: DiaryEntry[] }) {
                 >
                   <div>
                     <p>{entry.custom_name ?? entry.foods?.name ?? "Alimento"}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {entry.quantity_grams}g · {entry.calories} kcal
                     </p>
                   </div>
                   <button
                     onClick={() => handleDelete(entry.id)}
-                    className="text-xs text-red-500 hover:underline"
+                    className="text-xs text-destructive hover:underline"
                   >
                     Eliminar
                   </button>

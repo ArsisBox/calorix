@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables, Enums } from "@/lib/supabase/types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Food = Tables<"foods">;
 type MealType = Enums<"meal_type">;
@@ -83,88 +86,79 @@ export function AddEntryForm({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 p-4 space-y-4">
-      <h2 className="font-semibold">Agregar alimento</h2>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Agregar alimento</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <Input
+            type="text"
+            placeholder="Buscar alimento (ej. banana, arroz...)"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <Button type="submit" disabled={searching} variant="secondary">
+            {searching ? "..." : "Buscar"}
+          </Button>
+        </form>
 
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <input
-          type="text"
-          placeholder="Buscar alimento (ej. banana, arroz...)"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
-        />
-        <button
-          type="submit"
-          disabled={searching}
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {searching ? "..." : "Buscar"}
-        </button>
-      </form>
-
-      {results.length > 0 && !selected && (
-        <ul className="max-h-56 divide-y divide-gray-100 overflow-y-auto rounded-lg border border-gray-100">
-          {results.map((food) => (
-            <li key={food.id}>
-              <button
-                onClick={() => setSelected(food)}
-                className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-50"
-              >
-                <span>
-                  {food.name}
-                  {food.brand ? ` · ${food.brand}` : ""}
-                </span>
-                <span className="text-gray-500">{food.calories_per_100g} kcal/100g</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {selected && (
-        <div className="space-y-3 rounded-lg bg-gray-50 p-3">
-          <p className="text-sm font-medium">{selected.name}</p>
-          <div className="flex items-center gap-2">
-            <input
-              type="number"
-              min={1}
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              className="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm"
-            />
-            <span className="text-sm text-gray-500">gramos</span>
-          </div>
-          <select
-            value={mealType}
-            onChange={(e) => setMealType(e.target.value as MealType)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-          >
-            {Object.entries(MEAL_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
+        {results.length > 0 && !selected && (
+          <ul className="max-h-56 divide-y divide-border overflow-y-auto rounded-lg border">
+            {results.map((food) => (
+              <li key={food.id}>
+                <button
+                  onClick={() => setSelected(food)}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground"
+                >
+                  <span>
+                    {food.name}
+                    {food.brand ? ` · ${food.brand}` : ""}
+                  </span>
+                  <span className="text-muted-foreground">{food.calories_per_100g} kcal/100g</span>
+                </button>
+              </li>
             ))}
-          </select>
-          <div className="flex gap-2">
-            <button
-              onClick={handleAdd}
-              disabled={saving}
-              className="flex-1 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-            >
-              {saving ? "Guardando..." : "Agregar al diario"}
-            </button>
-            <button
-              onClick={() => setSelected(null)}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm"
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
-      )}
+          </ul>
+        )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-    </div>
+        {selected && (
+          <div className="space-y-3 rounded-lg bg-muted p-3">
+            <p className="text-sm font-medium">{selected.name}</p>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min={1}
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                className="w-24"
+              />
+              <span className="text-sm text-muted-foreground">gramos</span>
+            </div>
+            <select
+              value={mealType}
+              onChange={(e) => setMealType(e.target.value as MealType)}
+              className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            >
+              {Object.entries(MEAL_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            <div className="flex gap-2">
+              <Button onClick={handleAdd} disabled={saving} className="flex-1">
+                {saving ? "Guardando..." : "Agregar al diario"}
+              </Button>
+              <Button variant="outline" onClick={() => setSelected(null)}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {error && <p className="text-sm text-destructive">{error}</p>}
+      </CardContent>
+    </Card>
   );
 }
