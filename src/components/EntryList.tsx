@@ -153,7 +153,13 @@ export function EntryList({ entries }: { entries: DiaryEntry[] }) {
                 ) : (
                   <li
                     key={entry.id}
-                    className="flex items-center justify-between px-3 py-2 text-sm"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => startEdit(entry)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") startEdit(entry);
+                    }}
+                    className="flex cursor-pointer items-center justify-between px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
                   >
                     <div>
                       <p>{entry.custom_name ?? entry.foods?.name ?? "Alimento"}</p>
@@ -161,20 +167,15 @@ export function EntryList({ entries }: { entries: DiaryEntry[] }) {
                         {entry.quantity_grams}g · {entry.calories} kcal
                       </p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => startEdit(entry)}
-                        className="text-xs text-muted-foreground hover:underline"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => handleDelete(entry.id)}
-                        className="text-xs text-destructive hover:underline"
-                      >
-                        Eliminar
-                      </button>
-                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(entry.id);
+                      }}
+                      className="shrink-0 pl-3 text-xs text-destructive hover:underline"
+                    >
+                      Eliminar
+                    </button>
                   </li>
                 ),
               )}
