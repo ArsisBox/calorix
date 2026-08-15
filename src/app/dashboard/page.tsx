@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AddEntryForm } from "@/components/AddEntryForm";
@@ -52,23 +53,25 @@ export default async function DashboardPage() {
         <LogoutButton />
       </header>
 
-      <Card>
-        <CardContent>
-          <div className="flex items-baseline justify-between">
-            <span className="text-3xl font-bold">{totalCalories}</span>
-            <span className="text-sm text-muted-foreground">de {goal} kcal</span>
-          </div>
-          <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-primary transition-all"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {remaining >= 0 ? `${remaining} kcal restantes` : `${Math.abs(remaining)} kcal por encima del objetivo`}
-          </p>
-        </CardContent>
-      </Card>
+      <Link href="/history">
+        <Card className="transition-colors hover:bg-accent hover:text-accent-foreground">
+          <CardContent>
+            <div className="flex items-baseline justify-between">
+              <span className="text-3xl font-bold">{totalCalories}</span>
+              <span className="text-sm text-muted-foreground">de {goal} kcal</span>
+            </div>
+            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {remaining >= 0 ? `${remaining} kcal restantes` : `${Math.abs(remaining)} kcal por encima del objetivo`}
+            </p>
+          </CardContent>
+        </Card>
+      </Link>
 
       <AddEntryForm userId={user.id} />
 
