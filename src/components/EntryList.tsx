@@ -149,6 +149,12 @@ export function EntryList({ entries }: { entries: DiaryEntry[] }) {
                         Cancelar
                       </Button>
                     </div>
+                    <button
+                      onClick={() => handleDelete(entry.id)}
+                      className="text-xs text-destructive hover:underline"
+                    >
+                      Eliminar
+                    </button>
                   </li>
                 ) : (
                   <li
@@ -167,15 +173,6 @@ export function EntryList({ entries }: { entries: DiaryEntry[] }) {
                         {entry.quantity_grams}g · {entry.calories} kcal
                       </p>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(entry.id);
-                      }}
-                      className="shrink-0 pl-3 text-xs text-destructive hover:underline"
-                    >
-                      Eliminar
-                    </button>
                   </li>
                 ),
               )}
