@@ -109,6 +109,45 @@ export type Database = {
           },
         ]
       }
+      food_ingredients: {
+        Row: {
+          created_at: string
+          id: string
+          ingredient_food_id: string
+          prepared_food_id: string
+          proportion: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ingredient_food_id: string
+          prepared_food_id: string
+          proportion: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ingredient_food_id?: string
+          prepared_food_id?: string
+          proportion?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "food_ingredients_ingredient_food_id_fkey"
+            columns: ["ingredient_food_id"]
+            isOneToOne: false
+            referencedRelation: "foods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "food_ingredients_prepared_food_id_fkey"
+            columns: ["prepared_food_id"]
+            isOneToOne: false
+            referencedRelation: "foods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       foods: {
         Row: {
           barcode: string | null
@@ -264,7 +303,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      food_computed_density: {
+        Row: {
+          computed_density_g_per_ml: number | null
+          food_id: string | null
+          ingredient_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "food_ingredients_prepared_food_id_fkey"
+            columns: ["food_id"]
+            isOneToOne: false
+            referencedRelation: "foods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
