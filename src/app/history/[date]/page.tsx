@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { dayRangeFromKey } from "@/lib/date";
+import { getUserTimezone } from "@/lib/timezone-server";
+import { zonedDayRangeFromKey } from "@/lib/timezone";
 import { EntryList } from "@/components/EntryList";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -32,7 +33,8 @@ export default async function HistoryDayPage({
     .eq("id", user.id)
     .single();
 
-  const { start, end } = dayRangeFromKey(date);
+  const timeZone = await getUserTimezone();
+  const { start, end } = zonedDayRangeFromKey(date, timeZone);
 
   const { data: entries } = await supabase
     .from("diary_entries")
@@ -54,7 +56,7 @@ export default async function HistoryDayPage({
           ← Historial
         </Link>
         <h1 className="text-xl font-bold capitalize">
-          {start.toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })}
+          {start.toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long", timeZone })}
         </h1>
       </header>
 

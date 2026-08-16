@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getUserTimezone } from "@/lib/timezone-server";
+import { zonedDayRange } from "@/lib/timezone";
 import { AddEntryForm } from "@/components/AddEntryForm";
 import { EntryList } from "@/components/EntryList";
 import { LogoutButton } from "@/components/LogoutButton";
@@ -24,10 +26,8 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date();
-  endOfDay.setHours(23, 59, 59, 999);
+  const timeZone = await getUserTimezone();
+  const { start: startOfDay, end: endOfDay } = zonedDayRange(timeZone);
 
   const { data: entries } = await supabase
     .from("diary_entries")
@@ -50,7 +50,7 @@ export default async function DashboardPage() {
           <div>
             <h1 className="text-xl font-bold">Hola{profile?.full_name ? `, ${profile.full_name}` : ""}</h1>
             <p className="text-sm text-muted-foreground">
-              {new Date().toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })}
+              {startOfDay.toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long", timeZone })}
             </p>
           </div>
         </div>

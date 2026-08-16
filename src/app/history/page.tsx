@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { toDateKey } from "@/lib/date";
+import { getUserTimezone } from "@/lib/timezone-server";
+import { zonedDateKey } from "@/lib/timezone";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default async function HistoryPage() {
@@ -22,6 +23,7 @@ export default async function HistoryPage() {
     .single();
 
   const goal = profile?.daily_calorie_goal ?? 2000;
+  const timeZone = await getUserTimezone();
 
   const since = new Date();
   since.setDate(since.getDate() - 90);
@@ -37,7 +39,7 @@ export default async function HistoryPage() {
   const byDay = new Map<string, { total: number; date: Date }>();
   for (const entry of entries ?? []) {
     const date = new Date(entry.logged_at);
-    const key = toDateKey(date);
+    const key = zonedDateKey(date, timeZone);
     const existing = byDay.get(key);
     if (existing) {
       existing.total += entry.calories;
@@ -76,6 +78,7 @@ export default async function HistoryPage() {
                             weekday: "long",
                             day: "numeric",
                             month: "long",
+                            timeZone,
                           })}
                         </span>
                         <span className="text-sm text-muted-foreground">
