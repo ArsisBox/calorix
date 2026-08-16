@@ -22,10 +22,13 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Calorix",
   },
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#16a34a",
+  themeColor: "#14b8a6",
   width: "device-width",
   initialScale: 1,
 };

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AddEntryForm } from "@/components/AddEntryForm";
@@ -44,11 +45,14 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto max-w-md space-y-6 px-4 py-8">
       <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold">Hola{profile?.full_name ? `, ${profile.full_name}` : ""}</h1>
-          <p className="text-sm text-muted-foreground">
-            {new Date().toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })}
-          </p>
+        <div className="flex items-center gap-3">
+          <Image src="/logo.svg" alt="Calorix" width={36} height={36} />
+          <div>
+            <h1 className="text-xl font-bold">Hola{profile?.full_name ? `, ${profile.full_name}` : ""}</h1>
+            <p className="text-sm text-muted-foreground">
+              {new Date().toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })}
+            </p>
+          </div>
         </div>
         <LogoutButton />
       </header>

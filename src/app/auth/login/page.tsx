@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +45,13 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
+          <Image
+            src="/logo.svg"
+            alt="Calorix"
+            width={48}
+            height={48}
+            className="mx-auto mb-2"
+          />
           <CardTitle className="text-2xl">Calorix</CardTitle>
           <CardDescription>Iniciá sesión para continuar</CardDescription>
         </CardHeader>
