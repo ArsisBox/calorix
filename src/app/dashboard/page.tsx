@@ -8,6 +8,7 @@ import { AddEntryForm } from "@/components/AddEntryForm";
 import { EntryList } from "@/components/EntryList";
 import { LogoutButton } from "@/components/LogoutButton";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -42,6 +43,16 @@ export default async function DashboardPage() {
   const remaining = goal - totalCalories;
   const progress = Math.min(100, Math.round((totalCalories / goal) * 100));
 
+  const totalProtein = (entries ?? []).reduce((sum, e) => sum + (e.protein ?? 0), 0);
+  const totalCarbs = (entries ?? []).reduce((sum, e) => sum + (e.carbs ?? 0), 0);
+  const totalFat = (entries ?? []).reduce((sum, e) => sum + (e.fat ?? 0), 0);
+
+  const macros = [
+    { label: "Proteína", total: totalProtein, goal: profile?.daily_protein_goal, color: "bg-chart-1" },
+    { label: "Carbs", total: totalCarbs, goal: profile?.daily_carbs_goal, color: "bg-chart-2" },
+    { label: "Grasa", total: totalFat, goal: profile?.daily_fat_goal, color: "bg-chart-3" },
+  ].filter((m) => m.goal != null);
+
   return (
     <div className="mx-auto max-w-md space-y-6 px-4 py-8">
       <header className="flex items-center justify-between">
@@ -54,7 +65,12 @@ export default async function DashboardPage() {
             </p>
           </div>
         </div>
-        <LogoutButton />
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/profile">Perfil</Link>
+          </Button>
+          <LogoutButton />
+        </div>
       </header>
 
       <Link href="/history">
@@ -76,6 +92,33 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </Link>
+
+      {macros.length > 0 && (
+        <Card>
+          <CardContent className="space-y-3">
+            {macros.map((m) => {
+              const g = m.goal!;
+              const pct = Math.min(100, Math.round((m.total / g) * 100));
+              return (
+                <div key={m.label}>
+                  <div className="flex items-baseline justify-between text-sm">
+                    <span className="font-medium">{m.label}</span>
+                    <span className="text-muted-foreground">
+                      {Math.round(m.total)} / {g} g
+                    </span>
+                  </div>
+                  <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                    <div
+                      className={`h-full rounded-full ${m.color} transition-all`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
 
       <AddEntryForm userId={user.id} />
 
