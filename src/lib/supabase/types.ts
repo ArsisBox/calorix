@@ -120,6 +120,7 @@ export type Database = {
           density_g_per_ml: number | null
           fat_per_100g: number | null
           fiber_per_100g: number | null
+          food_type: Database["public"]["Enums"]["food_type"] | null
           id: string
           name: string
           protein_per_100g: number | null
@@ -135,6 +136,7 @@ export type Database = {
           density_g_per_ml?: number | null
           fat_per_100g?: number | null
           fiber_per_100g?: number | null
+          food_type?: Database["public"]["Enums"]["food_type"] | null
           id?: string
           name: string
           protein_per_100g?: number | null
@@ -150,6 +152,7 @@ export type Database = {
           density_g_per_ml?: number | null
           fat_per_100g?: number | null
           fiber_per_100g?: number | null
+          food_type?: Database["public"]["Enums"]["food_type"] | null
           id?: string
           name?: string
           protein_per_100g?: number | null
@@ -274,6 +277,7 @@ export type Database = {
         | "active"
         | "very_active"
       food_source: "openfoodfacts" | "manual" | "usda"
+      food_type: "base" | "preparado"
       meal_type: "breakfast" | "lunch" | "dinner" | "snack"
       sex_type: "male" | "female" | "other"
       unit_type: "weight" | "volume"
@@ -412,6 +416,7 @@ export const Constants = {
         "very_active",
       ],
       food_source: ["openfoodfacts", "manual", "usda"],
+      food_type: ["base", "preparado"],
       meal_type: ["breakfast", "lunch", "dinner", "snack"],
       sex_type: ["male", "female", "other"],
       unit_type: ["weight", "volume"],
