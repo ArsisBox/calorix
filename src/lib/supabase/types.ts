@@ -23,6 +23,8 @@ export type Database = {
           fat: number | null
           food_id: string | null
           id: string
+          input_quantity: number | null
+          input_unit_id: string | null
           logged_at: string
           meal_type: Database["public"]["Enums"]["meal_type"]
           protein: number | null
@@ -37,6 +39,8 @@ export type Database = {
           fat?: number | null
           food_id?: string | null
           id?: string
+          input_quantity?: number | null
+          input_unit_id?: string | null
           logged_at?: string
           meal_type: Database["public"]["Enums"]["meal_type"]
           protein?: number | null
@@ -51,6 +55,8 @@ export type Database = {
           fat?: number | null
           food_id?: string | null
           id?: string
+          input_quantity?: number | null
+          input_unit_id?: string | null
           logged_at?: string
           meal_type?: Database["public"]["Enums"]["meal_type"]
           protein?: number | null
@@ -63,6 +69,13 @@ export type Database = {
             columns: ["food_id"]
             isOneToOne: false
             referencedRelation: "foods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diary_entries_input_unit_id_fkey"
+            columns: ["input_unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
             referencedColumns: ["id"]
           },
         ]
@@ -104,6 +117,7 @@ export type Database = {
           carbs_per_100g: number | null
           created_at: string
           created_by: string | null
+          density_g_per_ml: number | null
           fat_per_100g: number | null
           fiber_per_100g: number | null
           id: string
@@ -118,6 +132,7 @@ export type Database = {
           carbs_per_100g?: number | null
           created_at?: string
           created_by?: string | null
+          density_g_per_ml?: number | null
           fat_per_100g?: number | null
           fiber_per_100g?: number | null
           id?: string
@@ -132,6 +147,7 @@ export type Database = {
           carbs_per_100g?: number | null
           created_at?: string
           created_by?: string | null
+          density_g_per_ml?: number | null
           fat_per_100g?: number | null
           fiber_per_100g?: number | null
           id?: string
@@ -192,6 +208,33 @@ export type Database = {
         }
         Relationships: []
       }
+      units: {
+        Row: {
+          abbreviation: string
+          created_at: string
+          id: string
+          name: string
+          to_base_factor: number
+          unit_type: Database["public"]["Enums"]["unit_type"]
+        }
+        Insert: {
+          abbreviation: string
+          created_at?: string
+          id?: string
+          name: string
+          to_base_factor: number
+          unit_type: Database["public"]["Enums"]["unit_type"]
+        }
+        Update: {
+          abbreviation?: string
+          created_at?: string
+          id?: string
+          name?: string
+          to_base_factor?: number
+          unit_type?: Database["public"]["Enums"]["unit_type"]
+        }
+        Relationships: []
+      }
       weight_logs: {
         Row: {
           created_at: string
@@ -233,6 +276,7 @@ export type Database = {
       food_source: "openfoodfacts" | "manual" | "usda"
       meal_type: "breakfast" | "lunch" | "dinner" | "snack"
       sex_type: "male" | "female" | "other"
+      unit_type: "weight" | "volume"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -370,6 +414,7 @@ export const Constants = {
       food_source: ["openfoodfacts", "manual", "usda"],
       meal_type: ["breakfast", "lunch", "dinner", "snack"],
       sex_type: ["male", "female", "other"],
+      unit_type: ["weight", "volume"],
     },
   },
 } as const

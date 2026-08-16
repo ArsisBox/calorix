@@ -38,11 +38,13 @@ export default async function HistoryDayPage({
 
   const { data: entries } = await supabase
     .from("diary_entries")
-    .select("*, foods(name, brand)")
+    .select("*, foods(name, brand, density_g_per_ml)")
     .eq("user_id", user.id)
     .gte("logged_at", start.toISOString())
     .lte("logged_at", end.toISOString())
     .order("logged_at", { ascending: true });
+
+  const { data: units } = await supabase.from("units").select("*").order("unit_type").order("to_base_factor");
 
   const totalCalories = (entries ?? []).reduce((sum, e) => sum + e.calories, 0);
   const goal = profile?.daily_calorie_goal ?? 2000;
@@ -79,7 +81,7 @@ export default async function HistoryDayPage({
       </Card>
 
       <section>
-        <EntryList entries={entries ?? []} />
+        <EntryList entries={entries ?? []} units={units ?? []} />
       </section>
     </div>
   );

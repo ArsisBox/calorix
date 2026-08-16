@@ -4,9 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables, Enums } from "@/lib/supabase/types";
+import type { Unit } from "@/lib/units";
+import { toGrams } from "@/lib/units";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UnitSelect } from "@/components/UnitSelect";
 
 type Food = Tables<"foods">;
 type MealType = Enums<"meal_type">;
@@ -18,13 +21,15 @@ const MEAL_LABELS: Record<MealType, string> = {
   snack: "Snack",
 };
 
-export function AddEntryForm({ userId }: { userId: string }) {
+export function AddEntryForm({ userId, units }: { userId: string; units: Unit[] }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Food[]>([]);
   const [searching, setSearching] = useState(false);
   const [selected, setSelected] = useState<Food | null>(null);
   const [quantity, setQuantity] = useState("100");
+  const gramUnit = units.find((u) => u.abbreviation === "g") ?? units[0];
+  const [unitId, setUnitId] = useState(gramUnit?.id ?? "");
   const [mealType, setMealType] = useState<MealType>("breakfast");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,8 +55,9 @@ export function AddEntryForm({ userId }: { userId: string }) {
 
   async function handleAdd() {
     if (!selected) return;
-    const grams = parseFloat(quantity);
-    if (!grams || grams <= 0) {
+    const qty = parseFloat(quantity);
+    const unit = units.find((u) => u.id === unitId);
+    if (!qty || qty <= 0 || !unit) {
       setError("Ingresá una cantidad válida");
       return;
     }
@@ -59,6 +65,7 @@ export function AddEntryForm({ userId }: { userId: string }) {
     setSaving(true);
     setError(null);
 
+    const grams = toGrams(qty, unit, selected.density_g_per_ml);
     const factor = grams / 100;
     const supabase = createClient();
     const { error } = await supabase.from("diary_entries").insert({
@@ -66,6 +73,8 @@ export function AddEntryForm({ userId }: { userId: string }) {
       food_id: selected.id,
       meal_type: mealType,
       quantity_grams: grams,
+      input_quantity: qty,
+      input_unit_id: unit.id,
       calories: Math.round(selected.calories_per_100g * factor),
       protein: selected.protein_per_100g ? selected.protein_per_100g * factor : null,
       carbs: selected.carbs_per_100g ? selected.carbs_per_100g * factor : null,
@@ -82,6 +91,7 @@ export function AddEntryForm({ userId }: { userId: string }) {
     setResults([]);
     setQuery("");
     setQuantity("100");
+    setUnitId(gramUnit?.id ?? "");
     router.refresh();
   }
 
@@ -128,12 +138,13 @@ export function AddEntryForm({ userId }: { userId: string }) {
             <div className="flex items-center gap-2">
               <Input
                 type="number"
-                min={1}
+                min={0}
+                step="any"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 className="w-24"
               />
-              <span className="text-sm text-muted-foreground">gramos</span>
+              <UnitSelect units={units} value={unitId} onChange={setUnitId} />
             </div>
             <select
               value={mealType}

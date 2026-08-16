@@ -32,11 +32,13 @@ export default async function DashboardPage() {
 
   const { data: entries } = await supabase
     .from("diary_entries")
-    .select("*, foods(name, brand)")
+    .select("*, foods(name, brand, density_g_per_ml)")
     .eq("user_id", user.id)
     .gte("logged_at", startOfDay.toISOString())
     .lte("logged_at", endOfDay.toISOString())
     .order("logged_at", { ascending: true });
+
+  const { data: units } = await supabase.from("units").select("*").order("unit_type").order("to_base_factor");
 
   const totalCalories = (entries ?? []).reduce((sum, e) => sum + e.calories, 0);
   const goal = profile?.daily_calorie_goal ?? 2000;
@@ -120,11 +122,11 @@ export default async function DashboardPage() {
         </Card>
       )}
 
-      <AddEntryForm userId={user.id} />
+      <AddEntryForm userId={user.id} units={units ?? []} />
 
       <section>
         <h2 className="mb-3 font-semibold">Hoy</h2>
-        <EntryList entries={entries ?? []} />
+        <EntryList entries={entries ?? []} units={units ?? []} />
       </section>
     </div>
   );

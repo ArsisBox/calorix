@@ -4,11 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables, Enums } from "@/lib/supabase/types";
+import type { Unit } from "@/lib/units";
+import { toGrams } from "@/lib/units";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { UnitSelect } from "@/components/UnitSelect";
 
 type DiaryEntry = Tables<"diary_entries"> & {
-  foods: Pick<Tables<"foods">, "name" | "brand"> | null;
+  foods: Pick<Tables<"foods">, "name" | "brand" | "density_g_per_ml"> | null;
 };
 
 type MealType = Enums<"meal_type">;
@@ -20,10 +23,12 @@ const MEAL_LABELS: Record<MealType, string> = {
   snack: "Snack",
 };
 
-export function EntryList({ entries }: { entries: DiaryEntry[] }) {
+export function EntryList({ entries, units }: { entries: DiaryEntry[]; units: Unit[] }) {
   const router = useRouter();
+  const gramUnit = units.find((u) => u.abbreviation === "g") ?? units[0];
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editQuantity, setEditQuantity] = useState("");
+  const [editUnitId, setEditUnitId] = useState("");
   const [editMealType, setEditMealType] = useState<MealType>("breakfast");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +41,8 @@ export function EntryList({ entries }: { entries: DiaryEntry[] }) {
 
   function startEdit(entry: DiaryEntry) {
     setEditingId(entry.id);
-    setEditQuantity(String(entry.quantity_grams));
+    setEditQuantity(String(entry.input_quantity ?? entry.quantity_grams));
+    setEditUnitId(entry.input_unit_id ?? gramUnit?.id ?? "");
     setEditMealType(entry.meal_type);
     setError(null);
   }
@@ -47,8 +53,9 @@ export function EntryList({ entries }: { entries: DiaryEntry[] }) {
   }
 
   async function handleSaveEdit(entry: DiaryEntry) {
-    const grams = parseFloat(editQuantity);
-    if (!grams || grams <= 0) {
+    const qty = parseFloat(editQuantity);
+    const unit = units.find((u) => u.id === editUnitId);
+    if (!qty || qty <= 0 || !unit) {
       setError("Ingresá una cantidad válida");
       return;
     }
@@ -56,6 +63,7 @@ export function EntryList({ entries }: { entries: DiaryEntry[] }) {
     setSaving(true);
     setError(null);
 
+    const grams = toGrams(qty, unit, entry.foods?.density_g_per_ml);
     // Derive per-100g values from the originally stored data so we can
     // rescale calories/macros to the new quantity without re-fetching food.
     const ratio = grams / entry.quantity_grams;
@@ -64,6 +72,8 @@ export function EntryList({ entries }: { entries: DiaryEntry[] }) {
       .from("diary_entries")
       .update({
         quantity_grams: grams,
+        input_quantity: qty,
+        input_unit_id: unit.id,
         meal_type: editMealType,
         calories: Math.round(entry.calories * ratio),
         protein: entry.protein != null ? entry.protein * ratio : null,
@@ -117,12 +127,13 @@ export function EntryList({ entries }: { entries: DiaryEntry[] }) {
                     <div className="flex items-center gap-2">
                       <Input
                         type="number"
-                        min={1}
+                        min={0}
+                        step="any"
                         value={editQuantity}
                         onChange={(e) => setEditQuantity(e.target.value)}
                         className="w-24"
                       />
-                      <span className="text-sm text-muted-foreground">gramos</span>
+                      <UnitSelect units={units} value={editUnitId} onChange={setEditUnitId} />
                     </div>
                     <select
                       value={editMealType}
